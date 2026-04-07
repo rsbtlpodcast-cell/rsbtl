@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jadwal Dokter Spesialis - RSUD Bedas Tegalluar</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #007c91;
+  --secondary: #00bfa5;
+  --light-bg: #f8fbfb;
+  --text-dark: #222;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: var(--light-bg);
+  color: var(--text-dark);
+}
+
+header {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  padding: 20px 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+header img { height: 100px; }
+
+.clock-container {
+  text-align: right;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+.clock-container .day { font-size: 80px; font-weight: 900; }
+.clock-container .date { font-size: 60px; }
+.clock-container .time { font-size: 90px; font-weight: 900; color: #ffeb3b; }
+
+main {
+  max-width: 1400px;
+  margin: 20px auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 140px);
+}
+
+.doctor-card {
+  display: flex;
+  background: #fff;
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+  width: 100%;
+  min-height: 600px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.doctor-card.show { opacity: 1; transform: translateY(0); }
+
+.doctor-photo {
+  width: 55%;
+  min-width: 500px;
+  height: 100%;
+  object-fit: cover;
+  border-right: 5px solid var(--secondary);
+}
+
+.doctor-info {
+  flex: 1;
+  padding: 35px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.doctor-info h3 { font-size: 60px; color: var(--primary); margin-bottom: 15px; }
+.doctor-info p { font-size: 40px; color: #004d57; margin-bottom: 25px; }
+
+.jadwal-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 36px;
+  text-align: center;
+  font-weight: 700;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.jadwal-table th {
+  background: linear-gradient(90deg, #007c91, #00bfa5);
+  color: white;
+  padding: 25px 15px;
+  font-size: 36px;
+}
+
+.jadwal-table td {
+  padding: 20px 15px;
+  background: #f8fbfb;
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  transition: background 0.3s, color 0.3s;
+}
+
+.jadwal-table tr td:last-child { border-right: none; }
+.jadwal-table tr:nth-child(even) td { background: #e0f7f5; font-weight: 700; }
+
+.jadwal-table td.today {
+  background: #ffeb3b;
+  color: #004d57;
+  font-weight: 900;
+  border-radius: 12px;
+  box-shadow: 0 0 25px #ffeb3b;
+}
+
+@media(max-width:1200px){
+  .doctor-card{ flex-direction: column; min-height: 450px; }
+  .doctor-photo{ width: 100%; border-right: none; border-bottom: 5px solid var(--secondary); height: 300px; }
+  .doctor-info{ padding: 25px; text-align: center; }
+  .doctor-info h3{ font-size: 48px; }
+  .doctor-info p{ font-size: 32px; }
+  .jadwal-table{ font-size: 28px; }
+  .jadwal-table th, .jadwal-table td{ padding: 15px; }
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <img src="img/logorsud.png" alt="Logo RSUD Bedas Tegalluar">
+  <div id="clock" class="clock-container">
+    <span id="day" class="day"></span>, 
+    <span id="date" class="date"></span> • 
+    <span id="time" class="time"></span>
+  </div>
+</header>
+
+<main>
+  <div id="slide"></div>
+</main>
+
+<script>
+const doctors = [
+  {img:"img/1.png", name:"dr. Mulfi Azmi, Sp.PD", specialist:"Spesialis Penyakit Dalam", jadwal:{Senin:"-", Selasa:"07:30-10:30", Rabu:"-", Kamis:"07:30-10:30", Jumat:"-", Sabtu:"07:30-10:30"}},
+  {img:"img/2.png", name:"dr. Aditya Rifandi Zaenudin, Sp.OG", specialist:"Spesialis Kandungan & Kebidanan", jadwal:{Senin:"", Selasa:"13:00-16:00", Rabu:"-", Kamis:"08:00-12:00", Jumat:"-", Sabtu:"10:00-13:00"}},
+  {img:"img/3.png", name:"dr. Olga Vicetria Purba, Sp.A", specialist:"Spesialis Anak", jadwal:{Senin:"-", Selasa:"09:00-12:00", Rabu:"12:30-15:30", Kamis:"-", Jumat:"09:00-12:00", Sabtu:"-"}},
+  {img:"img/5.jpeg", name:"dr. R. Rezky Muhammad Nur Ismail, Sp.B", specialist:"Spesialis Bedah", jadwal:{Senin:"13:00-15:00", Selasa:"-", Rabu:"13:00-15:00", Kamis:"-", Jumat:"14:00-15:00", Sabtu:"11:00-14:00"}},
+  {img:"img/4.jpeg", name:"dr. Shiella Marlene, Sp.Rad", specialist:"Spesialis Radiologi", jadwal:{Senin:"12:00-14:00", Selasa:"-", Rabu:"12:00-14:00", Kamis:"12:00-14:00", Jumat:"-", Sabtu:"-"}},
+  {img:"img/6.png", name:"drg. Za'im Isyraqizh Zhafari, Sp.KGA", specialist:"Spesialis Gigi Mulut dan Anak", jadwal:{Senin:"08:00-11:00", Selasa:"08:00-12:00", Rabu:"08:00-12:00", Kamis:"08:00-12:00", Jumat:"08:00-12:00", Sabtu:"08:00-11:00"}}
+];
+
+let currentIndex = 0;
+const slideContainer = document.getElementById("slide");
+
+function showSlide(){
+  slideContainer.innerHTML = '';
+  const d = doctors[currentIndex];
+
+  const today = new Date();
+  const dayNames = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const todayName = dayNames[today.getDay()];
+
+  const card = document.createElement('div');
+  card.className = 'doctor-card';
+  card.innerHTML = `
+    <img class="doctor-photo" src="${d.img}" alt="${d.name}">
+    <div class="doctor-info">
+      <h3>${d.name}</h3>
+      <p>${d.specialist}</p>
+      <table class="jadwal-table">
+        <thead>
+          <tr>
+            <th>Sen</th><th>Sel</th><th>Rab</th><th>Kam</th><th>Jum</th><th>Sab</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="${todayName==='Senin'?'today':''}">${d.jadwal.Senin}</td>
+            <td class="${todayName==='Selasa'?'today':''}">${d.jadwal.Selasa}</td>
+            <td class="${todayName==='Rabu'?'today':''}">${d.jadwal.Rabu}</td>
+            <td class="${todayName==='Kamis'?'today':''}">${d.jadwal.Kamis}</td>
+            <td class="${todayName==='Jumat'?'today':''}">${d.jadwal.Jumat}</td>
+            <td class="${todayName==='Sabtu'?'today':''}">${d.jadwal.Sabtu}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+  slideContainer.appendChild(card);
+
+  setTimeout(()=> { card.classList.add('show'); }, 50);
+
+  currentIndex = (currentIndex + 1) % doctors.length;
+}
+
+showSlide();
+setInterval(showSlide, 10000);
+
+// Clock
+function updateClock(){
+  const days=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const months=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  const now = new Date();
+  document.getElementById("day").textContent = days[now.getDay()];
+  document.getElementById("date").textContent = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  document.getElementById("time").textContent = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+}
+
+updateClock();
+setInterval(updateClock,1000);
+</script>
+
+</body>
+</html>
